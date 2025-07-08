@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>موقع الحاوية</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- تحميل مكتبة Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+  <style>
+    body { margin: 0; font-family: Arial; direction: rtl; }
+    #map { height: 90vh; }
+    #info { padding: 10px; text-align: center; }
+    button { padding: 10px 20px; font-size: 18px; margin-top: 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+  <div id="info">
+    <div id="coords">جارٍ تحديد الموقع...</div>
+    <button onclick="copyCoords()">📋 نسخ الإحداثيات</button>
+  </div>
+
+  <script>
+    let lat, lon;
+    let map = L.map('map').setView([0, 0], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        lat = position.coords.latitude;
+        lon = position.coords.longitude;
+        document.getElementById("coords").innerText = `📍 إحداثياتك: ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+        map.setView([lat, lon], 18);
+        L.marker([lat, lon]).addTo(map).bindPopup("📍 أنت هنا").openPopup();
+      }, () => {
+        document.getElementById("coords").innerText = "❌ تعذر تحديد الموقع.";
+      });
+    } else {
+      document.getElementById("coords").innerText = "❌ المتصفح لا يدعم الموقع الجغرافي.";
+    }
+
+    function copyCoords() {
+      const text = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ تم نسخ الإحداثيات: " + text);
+      });
+    }
+  </script>
+
+</body>
+</html>
